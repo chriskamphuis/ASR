@@ -1,15 +1,12 @@
 import h5py
-import os
-import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Bidirectional, Dropout, Masking, TimeDistributed
 from keras.callbacks import ModelCheckpoint
-import random
 from read_timit import TimitGenerator, split_development_test
 import argparse
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+#import matplotlib
+#matplotlib.use('Agg')
+#import matplotlib.pyplot as plt
 
 
 def rnn_model():
@@ -35,7 +32,7 @@ def main(train_data_file, test_data_file, weights_file):
     checkpointer = ModelCheckpoint(filepath=weights_file, verbose=1, save_best_only=True)
     model.fit_generator(train_generator.generator(),
                         steps_per_epoch=185,        # ~= 3696 (num training utterances) / 20 (batch size)
-                        epochs=1,
+                        epochs=40,
                         validation_data=validation_generator.generator(),
                         validation_steps=20,        # = 400 (num validation utterances) / 20 (batch size)
                         callbacks=[checkpointer])
