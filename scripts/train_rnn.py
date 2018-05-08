@@ -12,13 +12,16 @@ import argparse
 def rnn_model():
     model = Sequential()
     model.add(Masking(mask_value=0., input_shape=(None, 13)))
-    model.add(LSTM(100, return_sequences=True))
+    model.add(LSTM(250, return_sequences=True))
     model.add(Dropout(0.2))
-    model.add(LSTM(100, return_sequences=True))
+    model.add(LSTM(250, return_sequences=True))
+    model.add(Dropout(0.2))
+    model.add(LSTM(250, return_sequences=True))
+    model.add(Dropout(0.2))
     # TimeDistributed is nodig om het Dense deel op iedere time step toe te passen
     model.add(TimeDistributed(Dense(39, activation='softmax')))
     model.summary()
-    model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'], sample_weight_mode='temporal')
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'], sample_weight_mode='temporal')
     return model
 
 def main(train_data_file, test_data_file, weights_file):
@@ -28,8 +31,11 @@ def main(train_data_file, test_data_file, weights_file):
 
     train_generator = TimitGenerator(train_data)
     validation_generator = TimitGenerator(test_data, keys=val_keys, shuffle=False)
+    print("Building model")
     model = rnn_model()
+    print("Done")
     checkpointer = ModelCheckpoint(filepath=weights_file, verbose=1, save_best_only=True)
+    print("Start training")
     model.fit_generator(train_generator.generator(),
                         steps_per_epoch=185,        # ~= 3696 (num training utterances) / 20 (batch size)
                         epochs=40,
