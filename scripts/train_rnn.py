@@ -13,11 +13,11 @@ def rnn_model():
     model = Sequential()
     model.add(Masking(mask_value=0., input_shape=(None, 13)))
     model.add(LSTM(250, return_sequences=True))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
     model.add(LSTM(250, return_sequences=True))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
     model.add(LSTM(250, return_sequences=True))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
     # TimeDistributed is nodig om het Dense deel op iedere time step toe te passen
     model.add(TimeDistributed(Dense(39, activation='softmax')))
     model.summary()
@@ -38,7 +38,7 @@ def main(train_data_file, test_data_file, weights_file):
     print("Start training")
     model.fit_generator(train_generator.generator(),
                         steps_per_epoch=185,        # ~= 3696 (num training utterances) / 20 (batch size)
-                        epochs=40,
+                        epochs=20,
                         validation_data=validation_generator.generator(),
                         validation_steps=20,        # = 400 (num validation utterances) / 20 (batch size)
                         callbacks=[checkpointer])
