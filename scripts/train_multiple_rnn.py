@@ -57,6 +57,7 @@ def main(train_data_file, test_data_file):
         plt.plot(res.history['val_acc'])
         plt.plot(res.history['loss'])
         plt.plot(res.history['val_loss'])
+        plt.legend(['acc', 'val_acc', 'loss', 'val_loss'])
         plt.savefig('{}-training.png'.format(save_path))
 
 
