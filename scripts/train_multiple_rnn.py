@@ -43,11 +43,12 @@ def main(train_data_file, test_data_file):
         print("Building model")
         model = rnn_model(hidden, dropout, bottleneck)
         save_path = 'weights_h{}_d{:.1f}_b{}.h5'.format(hidden, dropout, bottleneck)
-        checkpointer = ModelCheckpoint(filepath=save_path, verbose=1, save_best_only=True)
+        checkpointer = ModelCheckpoint(monitor='val_acc', filepath=save_path, verbose=1, save_best_only=True)
         print("Start training")
         res = model.fit_generator(train_generator.generator(),
                                   steps_per_epoch=185,        # ~= 3696 (num training utterances) / 20 (batch size)
                                   epochs=20,
+                                  use_multiprocessing=True,
                                   validation_data=validation_generator.generator(),
                                   validation_steps=20,        # = 400 (num validation utterances) / 20 (batch size)
                                   callbacks=[checkpointer])
