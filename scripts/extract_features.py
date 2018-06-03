@@ -1,4 +1,5 @@
 from python_speech_features import mfcc, logfbank
+from python_speech_features.sigproc import framesig
 import scipy.io.wavfile as wav
 import argparse as ap
 import sys
@@ -85,7 +86,8 @@ def main(source_dir, target_dir,
          winstep=0.01,
          winlen=0.025,
          include_sa=False,
-         pad_labels=False):
+         pad_labels=False,
+         raw_audio=False):
     drs = glob.glob(os.path.join(source_dir, 'DR*'))
     if len(drs) == 0:
         raise ValueError("Source folder does not contain DR# subfolders")
@@ -122,7 +124,10 @@ def main(source_dir, target_dir,
                 if use_logfbank:
                     features = logfbank(sig, rate, winlen=winlen, winstep=winstep)
                 else:
-                    features = mfcc(sig, rate, winlen=winlen, winstep=winstep)
+                    if raw_audio:
+                        features = framesig(sig, winlen*rate, winstep*rate)
+                    else:
+                        features = mfcc(sig, rate, winlen=winlen, winstep=winstep)
 
 
                 # Get the phonetic labels (no foldings, q phones included)
@@ -166,6 +171,8 @@ if __name__ == '__main__':
         parser.add_argument('target_directory', type=str, help='target directory for feature vectors')
         parser.add_argument('-f', dest='use_fb', action='store_true',
                             help='extract log filterbank energies instead of MFCC vectors')
+        parser.add_argument('--raw', dest='raw_audio', action='store_true',
+                            help='extract raw audio in frames instead of MFCC vectors')
         parser.add_argument('--winlen', dest='winlen', type=float, default=0.025,
                             help='window length for feature extraction in seconds (default 0.025)')
         parser.add_argument('--winstep', dest='winstep', type=float, default=0.01,
@@ -177,4 +184,4 @@ if __name__ == '__main__':
                                  "default behavior deletes the feature vectors after the end of annotations.")
         args = parser.parse_args()
         main(args.source_directory, args.target_directory, args.use_fb, args.winstep, args.winlen,
-             args.include_sa, args.pad_labels)
+             args.include_sa, args.pad_labels, args.raw_audio)
